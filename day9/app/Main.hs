@@ -1,6 +1,6 @@
 module Main where
+
 -- With Sets and arrays it would be nicer, theoretically faster but this is good enough
-import qualified Data.Array as A
 import Data.Char (digitToInt)
 import Data.List (nub, sortOn)
 import qualified GHC.Exts as Data.Ord
@@ -12,14 +12,15 @@ main = do
   print $ solve2 input
 
 solve1 :: Board -> Int
-solve1 board = sum (map (\(i,j) -> board !! i !! j + 1) filtered)
-  where filtered = findMinimums board
+solve1 board = sum (map (\(i, j) -> board !! i !! j + 1) filtered)
+  where
+    filtered = findMinimums board
 
 solve2 :: Board -> Int
-solve2 board = product . map length . take 3 . sortOn (Data.Ord.Down . length) . map (\ix -> expand board [] [ix])$ findMinimums board
+solve2 board = product . map length . take 3 . sortOn (Data.Ord.Down . length) . map (\ix -> expand board [] [ix]) $ findMinimums board
 
 findMinimums :: [[Int]] -> [(Int, Int)]
-findMinimums board = filter (checkSmaller board) [(i,j) | i <- [0 .. length board - 1], j<-[0..length (head board)-1] ]
+findMinimums board = filter (checkSmaller board) [(i, j) | i <- [0 .. length board - 1], j <- [0 .. length (head board) -1]]
 
 type Board = [[Int]]
 
@@ -40,13 +41,13 @@ checkSmaller board (i, j) = all check ixs
     ixs = generateIndex (i, j) board
     check (k, l) = board !! i !! j < board !! k !! l
 
-expandNext :: Board -> (Int, Int) -> [(Int,Int)]
+expandNext :: Board -> (Int, Int) -> [(Int, Int)]
 expandNext board ix = ixs
   where
-    ixs = filter (\ (i,j) -> board !! i !! j /= 9) $ generateIndex ix board
+    ixs = filter (\(i, j) -> board !! i !! j /= 9) $ generateIndex ix board
 
-expand :: Board -> [(Int,Int)] -> [(Int, Int)] -> [(Int, Int)]
+expand :: Board -> [(Int, Int)] -> [(Int, Int)] -> [(Int, Int)]
 expand board seen [] = seen
-expand board seen (initial:toSee) = expand board (initial:seen) (nub $ toSee ++ next)
+expand board seen (initial : toSee) = expand board (initial : seen) (nub $ toSee ++ next)
   where
     next = filter (`notElem` seen) $ expandNext board initial
